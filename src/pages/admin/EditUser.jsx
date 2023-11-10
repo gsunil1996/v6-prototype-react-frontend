@@ -39,7 +39,11 @@ function getStyles(name, personName, theme) {
 
 const EditUser = () => {
   const { id } = useParams();
-  const { data, isFetching, isError, error, isSuccess } = useGetUserByIdQuery(id)
+  const { data, isFetching, isError, error, isSuccess } = useGetUserByIdQuery(id, {
+    pollingInterval: 900000,
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  })
   const [username, setUserName] = useState("");
 
   const theme = useTheme();

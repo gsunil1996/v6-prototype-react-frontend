@@ -2,10 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setCredentials } from "../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl:
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3500"
-      : "https://microfrontend-music-app-backend.vercel.app",
+  baseUrl: "https://microfrontend-music-app-backend.vercel.app",
+  // process.env.NODE_ENV === "development"
+  //   ? "http://localhost:3500"
+  //   : "https://microfrontend-music-app-backend.vercel.app",
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.token;
