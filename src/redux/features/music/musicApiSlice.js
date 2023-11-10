@@ -47,14 +47,26 @@ export const musicApiSlice = apiSlice.injectEndpoints({
           body: formData,
         };
       },
-      invalidatesTags: [{ type: "Music", id: "LIST" }],
+      invalidatesTags: (result, error, arg) => {
+        // console.log("arg", arg);
+        return [
+          { type: "Music", id: arg.tableRowId },
+          { type: "Music", id: "LIST" },
+        ];
+      },
     }),
     deleteMusic: builder.mutation({
       query: (id) => ({
         url: `/music/delete-music/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "Music", id: "LIST" }],
+      invalidatesTags: (result, error, arg) => {
+        // console.log("arg", arg);
+        return [
+          { type: "Music", id: arg },
+          { type: "Music", id: "LIST" },
+        ];
+      },
     }),
   }),
 });
