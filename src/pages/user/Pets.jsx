@@ -1,16 +1,22 @@
-import { useState } from "react";
-import { useFetchBreedsQuery } from "../../redux/features/pets/petsSlice";
+import { useEffect, useState } from "react";
+import { useLazyFetchBreedsQuery } from "../../redux/features/pets/petsSlice";
 
 
 const Pets = () => {
 
   const [numOfDogs, setNumberOfDogs] = useState(10);
 
-  const [num, setNum] = useState(numOfDogs);
+  const [getPets, { data, isFetching, isSuccess, isError, error }] = useLazyFetchBreedsQuery();
 
-  const { data, isFetching, isSuccess, isError, error, refetch } = useFetchBreedsQuery(numOfDogs);
+  // console.log("pets", data)
 
-  console.log("pets", data)
+  const handleFetch = () => {
+    getPets(numOfDogs)
+  }
+
+  useEffect(() => {
+    getPets(numOfDogs)
+  }, [])
 
   return (
     <div>
@@ -20,9 +26,8 @@ const Pets = () => {
           <h1>Pets Api</h1>
           <div>
             <p>Pets to fetch</p>
-            <input type="number" value={num} onChange={(e) => setNum(e.target.value)} placeholder='enter number of dogs to fetch' />
-            <button onClick={() => setNumberOfDogs(num)} >Fetch</button>
-            <button onClick={() => refetch()}>Refetch pets</button>
+            <input type="number" value={numOfDogs} onChange={(e) => setNumberOfDogs(e.target.value)} placeholder='enter number of dogs to fetch' />
+            <button onClick={handleFetch} >Fetch</button>
           </div>
         </div>
       </div>
