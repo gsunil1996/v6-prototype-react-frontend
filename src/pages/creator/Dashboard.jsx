@@ -12,7 +12,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Pagination from "@mui/material/Pagination";
-import { useDeleteMusicMutation, useGetMusicQuery } from "../../redux/features/music/musicApiSlice";
+import { useDeleteMusicMutation, useLazyGetMusicQuery } from "../../redux/features/music/musicApiSlice";
 import UploadMusic from "./UploadMusic";
 import EditMusic from "./EditMusic";
 
@@ -64,8 +64,9 @@ const columns = [
 
 const Dashboard = () => {
 
-  const getPageNumberFromSessionStorage = sessionStorage.getItem("currentPage")
-  const [currentPage, setCurrentPage] = useState(getPageNumberFromSessionStorage || 1);
+  // const getPageNumberFromSessionStorage = sessionStorage.getItem("currentPage")
+  // const [currentPage, setCurrentPage] = useState(getPageNumberFromSessionStorage || 1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [text, setText] = useState("");
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState('all');
@@ -76,26 +77,31 @@ const Dashboard = () => {
 
   const handleGenreChange = (event) => {
     setGenre(event.target.value);
-    sessionStorage.setItem("currentPage", 1)
+    // sessionStorage.setItem("currentPage", 1)
   };
 
   const handlePageChange = (event, newPage) => {
     setCurrentPage(newPage);
-    sessionStorage.setItem("currentPage", newPage);
+    // sessionStorage.setItem("currentPage", newPage);
   };
 
   const requestSearch = () => {
     setSearch(text)
     setCurrentPage(1);
-    sessionStorage.setItem("currentPage", 1)
+    // sessionStorage.setItem("currentPage", 1)
   }
 
-  const { data, isFetching, isError, error, isSuccess } = useGetMusicQuery({ search, genre, page: currentPage },
-    {
-      pollingInterval: 900000,
-      refetchOnFocus: true,
-      refetchOnMountOrArgChange: true,
-    });
+  const [getMusic, { data, isFetching, isError, error, isSuccess }] = useLazyGetMusicQuery()
+
+  useEffect(() => {
+    getMusic({ search, genre, page: currentPage })
+  }, [search, genre, currentPage])
+
+  useEffect(() => {
+    if (text == "") {
+      setSearch("")
+    }
+  }, [text])
 
   const [deleteMusic, { isError: isDeleteError, error: deleteError, isSuccess: deleteIsSuccess, reset: deleteReset }] = useDeleteMusicMutation();
 
@@ -108,23 +114,18 @@ const Dashboard = () => {
     setEditMusicOpen(true);
   };
 
-  useEffect(() => {
-    if (text == "") {
-      setSearch("")
-    }
-  }, [text])
-
-  useEffect(() => {
-    if (sessionStorage.getItem("currentPage") != 1) {
-      sessionStorage.setItem('currentPage', 1)
-      sessionStorage.setItem("currentPage", 1);
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (sessionStorage.getItem("currentPage") != 1) {
+  //     sessionStorage.setItem('currentPage', 1)
+  //     sessionStorage.setItem("currentPage", 1);
+  //   }
+  // }, [])
 
   useEffect(() => {
     if (deleteIsSuccess) {
       alert("Music Deleted Successfully")
       deleteReset()
+      getMusic({ search: "", genre: "all", page: 1 })
     } else if (isDeleteError) {
       alert(deleteError?.data?.message)
       deleteReset()

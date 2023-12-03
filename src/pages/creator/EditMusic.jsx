@@ -4,12 +4,14 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { Box, Button, CircularProgress, Grid, LinearProgress, TextField } from "@mui/material";
-import { useGetMusicByIdQuery, useEditMusicMutation } from "../../redux/features/music/musicApiSlice";
+import { useLazyGetMusicByIdQuery, useEditMusicMutation, useLazyGetMusicQuery } from "../../redux/features/music/musicApiSlice";
 
 
 const EditMusic = (props) => {
 
   const { editMusicOpen, setEditMusicOpen, tableRowId } = props;
+
+  const [getMusic] = useLazyGetMusicQuery();
 
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -28,8 +30,13 @@ const EditMusic = (props) => {
     setFormValues({})
   };
 
+  const [getSingleMusic, { isFetching, isSuccess, isError, error, data }] = useLazyGetMusicByIdQuery()
 
-  const { isFetching, isSuccess, isError, error, data } = useGetMusicByIdQuery(tableRowId, { skip: !tableRowId })
+  useEffect(() => {
+    if (tableRowId) {
+      getSingleMusic(tableRowId)
+    }
+  }, [tableRowId])
 
   const [editMusic, { isLoading, isSuccess: editIsSuccess, isError: editIsError, error: editError, reset: editReset }] = useEditMusicMutation()
 
@@ -50,7 +57,8 @@ const EditMusic = (props) => {
     if (editIsSuccess) {
       alert("Music Updated Successfully!");
       editReset()
-      sessionStorage.setItem("currentPage", 1)
+      getMusic({ search: "", genre: "all", page: 1 })
+      // sessionStorage.setItem("currentPage", 1)
       handleClose();
     }
 

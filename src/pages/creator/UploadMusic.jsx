@@ -4,11 +4,13 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { Box, Button, CircularProgress, Grid, TextField } from "@mui/material";
-import { useAddMusicMutation } from "../../redux/features/music/musicApiSlice";
+import { useAddMusicMutation, useLazyGetMusicQuery } from "../../redux/features/music/musicApiSlice";
 
 const UploadMusic = (props) => {
 
   const [addMusic, { isLoading, isSuccess, isError, error, reset }] = useAddMusicMutation();
+
+  const [getMusic] = useLazyGetMusicQuery();
 
   const { uploadMusicOpen, setUploadMusicOpen } = props;
 
@@ -68,7 +70,8 @@ const UploadMusic = (props) => {
     if (isSuccess) {
       alert("Music Uploaded Successfully!");
       reset()
-      sessionStorage.setItem("currentPage", 1)
+      getMusic({ search: "", genre: "all", page: 1 })
+      // sessionStorage.setItem("currentPage", 1)
       handleClose();
     }
 

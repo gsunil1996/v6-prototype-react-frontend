@@ -5,29 +5,12 @@ export const musicApiSlice = apiSlice.injectEndpoints({
     getMusic: builder.query({
       query: ({ search, genre, page }) => ({
         url: `/music/get-music?search=${search}&genre=${genre}&page=${page}`,
-        validateStatus: (response, result) => {
-          return response.status === 200 && !result.isError;
-        },
       }),
-      providesTags: (result) => {
-        return result
-          ? [
-              { type: "Music", id: "LIST" },
-              ...result.music.map(({ _id }) => ({ type: "Music", id: _id })),
-            ]
-          : [{ type: "Music", id: "LIST" }];
-      },
     }),
     getMusicById: builder.query({
       query: (id) => ({
         url: `/music/get-music/${id}`,
-        validateStatus: (response, result) => {
-          return response.status === 200 && !result.isError;
-        },
       }),
-      providesTags: (result, error, id) => {
-        return [{ type: "User", id }];
-      },
     }),
     addMusic: builder.mutation({
       query: (data) => {
@@ -37,7 +20,6 @@ export const musicApiSlice = apiSlice.injectEndpoints({
           body: data,
         };
       },
-      invalidatesTags: [{ type: "Music", id: "LIST" }],
     }),
     editMusic: builder.mutation({
       query: ({ tableRowId, formData }) => {
@@ -47,34 +29,20 @@ export const musicApiSlice = apiSlice.injectEndpoints({
           body: formData,
         };
       },
-      invalidatesTags: (result, error, arg) => {
-        // console.log("arg", arg);
-        return [
-          { type: "Music", id: arg.tableRowId },
-          { type: "Music", id: "LIST" },
-        ];
-      },
     }),
     deleteMusic: builder.mutation({
       query: (id) => ({
         url: `/music/delete-music/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, arg) => {
-        // console.log("arg", arg);
-        return [
-          { type: "Music", id: arg },
-          { type: "Music", id: "LIST" },
-        ];
-      },
     }),
   }),
 });
 
 export const {
-  useGetMusicQuery,
+  useLazyGetMusicQuery,
+  useLazyGetMusicByIdQuery,
   useAddMusicMutation,
   useDeleteMusicMutation,
-  useGetMusicByIdQuery,
   useEditMusicMutation,
 } = musicApiSlice;
