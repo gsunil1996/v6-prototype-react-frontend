@@ -9,7 +9,7 @@ import { useLazyGetMusicByIdQuery, useEditMusicMutation, useLazyGetMusicQuery } 
 
 const EditMusic = (props) => {
 
-  const { editMusicOpen, setEditMusicOpen, tableRowId } = props;
+  const { editMusicOpen, setEditMusicOpen, tableRowId, genre, search, currentPage } = props;
 
   const [getMusic] = useLazyGetMusicQuery();
 
@@ -57,8 +57,7 @@ const EditMusic = (props) => {
     if (editIsSuccess) {
       alert("Music Updated Successfully!");
       editReset()
-      getMusic({ search: "", genre: "all", page: 1 })
-      // sessionStorage.setItem("currentPage", 1)
+      getMusic({ search, genre, page: currentPage })
       handleClose();
     }
 

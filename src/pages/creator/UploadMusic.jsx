@@ -71,7 +71,6 @@ const UploadMusic = (props) => {
       alert("Music Uploaded Successfully!");
       reset()
       getMusic({ search: "", genre: "all", page: 1 })
-      // sessionStorage.setItem("currentPage", 1)
       handleClose();
     }
 

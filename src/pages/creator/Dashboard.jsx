@@ -63,9 +63,6 @@ const columns = [
 
 
 const Dashboard = () => {
-
-  // const getPageNumberFromSessionStorage = sessionStorage.getItem("currentPage")
-  // const [currentPage, setCurrentPage] = useState(getPageNumberFromSessionStorage || 1);
   const [currentPage, setCurrentPage] = useState(1);
   const [text, setText] = useState("");
   const [search, setSearch] = useState("");
@@ -77,29 +74,38 @@ const Dashboard = () => {
 
   const handleGenreChange = (event) => {
     setGenre(event.target.value);
-    // sessionStorage.setItem("currentPage", 1)
+    setCurrentPage(1);
+    getMusic({ search, genre: event.target.value, page: 1 })
   };
 
   const handlePageChange = (event, newPage) => {
     setCurrentPage(newPage);
-    // sessionStorage.setItem("currentPage", newPage);
+    getMusic({ search, genre, page: newPage })
   };
 
   const requestSearch = () => {
     setSearch(text)
     setCurrentPage(1);
-    // sessionStorage.setItem("currentPage", 1)
+    getMusic({ search: text, genre, page: 1 })
   }
 
   const [getMusic, { data, isFetching, isError, error, isSuccess }] = useLazyGetMusicQuery()
 
   useEffect(() => {
+    if (data) {
+      setCurrentPage(data?.currentPage)
+      console.log("useEffect", data?.music?.length)
+    }
+  }, [data])
+
+  useEffect(() => {
     getMusic({ search, genre, page: currentPage })
-  }, [search, genre, currentPage])
+  }, [])
 
   useEffect(() => {
     if (text == "") {
       setSearch("")
+      getMusic({ search: "", genre, page: currentPage })
     }
   }, [text])
 
@@ -114,18 +120,11 @@ const Dashboard = () => {
     setEditMusicOpen(true);
   };
 
-  // useEffect(() => {
-  //   if (sessionStorage.getItem("currentPage") != 1) {
-  //     sessionStorage.setItem('currentPage', 1)
-  //     sessionStorage.setItem("currentPage", 1);
-  //   }
-  // }, [])
-
   useEffect(() => {
     if (deleteIsSuccess) {
       alert("Music Deleted Successfully")
       deleteReset()
-      getMusic({ search: "", genre: "all", page: 1 })
+      getMusic({ search, genre, page: data?.currentPage == 1 ? 1 : data?.music?.length > 1 ? currentPage : data?.currentPage - 1 })
     } else if (isDeleteError) {
       alert(deleteError?.data?.message)
       deleteReset()
@@ -352,6 +351,9 @@ const Dashboard = () => {
         editMusicOpen={editMusicOpen}
         setEditMusicOpen={setEditMusicOpen}
         tableRowId={tableRowId}
+        search={search}
+        genre={genre}
+        currentPage={currentPage}
       />
     </div>
   )
